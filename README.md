@@ -34,3 +34,4 @@ The solution uses an autoencoder architecture:
    - These predictions are combined with the original 'L' channel and converted back to RGB for visualization
 
 ### References
+This project is based on a similar one from a great platform I've been using to speed up my learning through videos and projects --> [ProjectPro](https://www.projectpro.io/)
