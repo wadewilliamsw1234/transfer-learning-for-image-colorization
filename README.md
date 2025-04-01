@@ -1,69 +1,36 @@
-# Image Colorization
+# Image Colorization using Deep Learning
+Started playing with computer vision and deep learning more as I start doing more advanced robotics projects. Still playing with this project. Interested to research DL vs optimization for applications like medical imaging. This project builds a CNN for image colorization using deep transfer learning.
 
-- Image colorization is the process of taking an input grayscale (black and white) image and then producing an output colorized image that represents the semantic colors and tones of the input.
-- Image colorization assigns a color to each pixel of a target grayscale image
-- Traditional colorization techniques requires significant user interaction.
-- In this process, a fully automated data-driven approach “autoencoders” is used for colorization
-- This method requires neither pre-processing nor post-processing.
+## Dataset
 
-## AutoEncoders
+The model is trained on approximately 7,000 RGB landscape images and tested on 5 grayscale images. The training data enables the model to learn the mapping between grayscale inputs and their corresponding color outputs.
 
-Autoencoders are a specific type of feedforward neural networks where the input is the same as the output. 
-An autoencoder neural network is an Unsupervised Machine learning algorithm that applies backpropagation, setting the target values to be equal to the inputs.
+## Methodology
 
-## Backbone
+The colorization task is treated as a regression problem, predicting the 'a' and 'b' channels of the LAB color space from the 'L' (lightness) channel. The LAB color space is selected because it separates luminance (L) from chrominance (a, b), allowing the model to focus solely on color prediction without altering brightness.
 
--	Backbone is a term used in models/papers to refer to the feature extractor network.
--	This is a standard convolutional neural network (typically, VGG16 or VGG19) that serves as a feature extractor. The early layers detect low level features (edges and corners), and later layers successively detect higher level features (car, person, sky).
--	Backbone gives you a feature map representation of input
--	Multiple pre trained model used as a backbone for a variety of tasks 
+The solution uses an autoencoder architecture:
+- **Encoder**: Extracts features from the grayscale input using the convolutional layers of VGG16, pre-trained on ImageNet, with weights frozen to leverage transfer learning.
+- **Decoder**: A custom CNN with upsampling layers that generates the 'a' and 'b' color channels from the encoded features.
 
-## Code Description
+### Key Steps
 
-    File Name : DecoderLayers.py
-    File Description : Setting up the decoder layers architecture and loading the trained model
+1. **Data Preprocessing**
+   - Images are resized to 224x224 pixels to align with VGG16's input requirements.
+   - RGB images are converted to LAB color space.
+   - The 'L' channel serves as the input, while the 'a' and 'b' channels are the targets.
 
+2. **Model Architecture**
+   - The encoder uses the first 19 layers of VGG16, retaining pre-trained weights for robust feature extraction.
+   - The decoder consists of convolutional and upsampling layers to reconstruct the color channels.
+   - The combined model takes a grayscale image (L channel) and outputs the predicted 'a' and 'b' channels.
 
+3. **Training**
+   - The model is optimized using the Adam optimizer with mean squared error (MSE) loss.
+   - Training runs for 2000 epochs with a batch size of 16.
 
-    File Name : Engine.py
-    File Description : Main class for starting different parts and processes of training and inference lifecycle
+4. **Inference**
+   - For a test grayscale image, the model predicts the 'a' and 'b' channels.
+   - These predictions are combined with the original 'L' channel and converted back to RGB for visualization
 
-
-
-    File Name : EncoderLayers.py
-    File Description : Setting up the encoder layers architecture and loading the backbone VGG model
-
-
-
-    File Name : Inference.py
-    File Description : Inference cycle for setting up the end to end pipeline of inferencing and saving the image
-
-
-
-    File Name : References.py
-    File Description : References class for keeping the constants and reference path to dataset and weights
-
-
-
-    File Name : LoadData.py
-    File Description : LoadDataset class for loading the image data and converting it to LAB format
-
-
-## Steps to Run
-
-There are two ways to execute the end to end flow.
-
-- Modular Code
-- IPython (Google Colab)
-
-### Modular code
-
-- Create virtualenv
-- Install requirements `pip install -r requirements.txt`
-- Modify `Engine.py` based on the mode that you are training on "Training" / "Inference"
-- Run Code `python Engine.py`
-
-### IPython Google Colab
-
-Follow the instructions in the notebook `Image_Coloring_using_Transfer_Learning.ipynb`
-
+### References
